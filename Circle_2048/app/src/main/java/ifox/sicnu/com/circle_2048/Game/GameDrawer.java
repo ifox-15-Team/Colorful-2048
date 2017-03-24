@@ -20,12 +20,13 @@ public class GameDrawer {
     GameBoard gameBoard;
     private Bitmap[] bm_datas;
     private int scrolloffset = 0;           //手势滑动的时候，控制的偏移量
+    private int scaleoffset = 0;            //手势缩放的时候，控制的缩放量
 
     private static final String TAG = "GameDrawer";
 
     static {
         paint = new Paint();
-        paint.setTextSize(40);
+        paint.setTextSize(10);
     }
 
     public GameDrawer(GameBoard gb) {
@@ -69,7 +70,6 @@ public class GameDrawer {
     }
 
     public void doDraw(Canvas canvas) {
-        Log.i(TAG, String.format("doDraw: %d", scrolloffset));
         DrawLeft(Const.MIDDLELINE, Const.HEIGHT_SC, canvas);                                                                      // 传入给绘制左边的逻辑的宽高
         DrawRight(Const.MIDDLELINE, 0, (int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC, canvas);                                   // 传入给绘制右边逻辑的宽高
     }
@@ -86,31 +86,35 @@ public class GameDrawer {
     private void DrawStaticCell(int ofx, int ofy, int width, int height, Canvas canvas) {
 //        Log.i(TAG, String.format("getPoint: %d", scrolloffset));
         for (int i = 0; i < gameBoard.size(); i++) {
+            boolean isboarder = false;
             Cell cell = gameBoard.getCell(i);
-            if (cell.isStatic()) {
-                Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset);
-                if (i == 0)
-                    DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId());
-                else
-                    DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId());
+            if (i == gameBoard.getMiddleBoarder() || i == gameBoard.getSurfaceBoarder()) {
+                isboarder = true;
             }
+            Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset, scaleoffset);
+            if (isboarder)
+                paint.setColor(Color.YELLOW);
+            else
+                paint.setColor(Color.DKGRAY);
+            if (i == 0)
+                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
+            else
+                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
         }
     }
 
-    /**
-     * 绘制细胞的简单逻辑，
-     * 由 绘制静态细胞 DrawStaticCell 调用
-     */
-    private void DrawCell(int x, int y, int r, int level, Canvas canvas, int id) {
-        paint.setColor(Color.DKGRAY);
+    //绘制细胞的简单逻辑，由 绘制静态细胞 DrawStaticCell 调用
+    private void DrawCell(int x, int y, int r, int level, Canvas canvas, int id, boolean display) {
         canvas.drawCircle(x, y, r, paint);
         int drx = x - Const.BASESPAN / 2;
         int dry = y - Const.BASESPAN / 2;
         paint.setColor(Color.RED);
         canvas.drawText(String.valueOf(id), drx, dry, paint);
-        Bitmap bitmap = getBitmapByLevel(level);
-        if (bitmap != null)
-            canvas.drawBitmap(bitmap, drx, dry, null);
+        if (display) {
+            Bitmap bitmap = getBitmapByLevel(level);
+            if (bitmap != null)
+                canvas.drawBitmap(bitmap, drx, dry, null);
+        }
     }
 
     private void DrawLeft(int width, int height, Canvas canvas) {
@@ -126,32 +130,67 @@ public class GameDrawer {
             return this.bm_datas[level - 1];
     }
 
-    public void addOffset(int index) {
+    public void addScrolOffset(int index) {
         this.scrolloffset += index;
     }
 
-    public void clearOffset() {
+    public void clearScrolOffset() {
         this.scrolloffset = 0;
     }
 
     //如果偏移量不为0，说明正在偏移
     public boolean isoffseting() {
-        if (this.scrolloffset != 0)
+        if (this.scrolloffset != 0 || this.scaleoffset != 0)
             return true;
         else
             return false;
     }
 
+    //对两个offset进行削减
     public void suboffset() {
         this.scrolloffset *= 0.95;
+        this.scaleoffset *= 0.95;
         if (scrolloffset > 0) {
             this.scrolloffset -= 3;
             if (scrolloffset < 0)
-                clearOffset();
-        } else {
+                clearScrolOffset();
+        } else if (scrolloffset < 0) {
             this.scrolloffset += 3;
             if (scrolloffset > 0)
-                clearOffset();
+                clearScrolOffset();
         }
+        if (scaleoffset > 0) {
+            this.scaleoffset -= 3;
+            if (scaleoffset < 0)
+                clearScaleOffset();
+        } else if (scaleoffset < 0) {
+            this.scaleoffset += 3;
+            if (scaleoffset > 0)
+                clearScaleOffset();
+        }
+    }
+
+    private void clearScaleOffset() {
+        this.scaleoffset = 0;
+    }
+
+    public void addScaleOffset(float v) {
+        if (v > 20)
+            v = 20;
+        else if (v < -20)
+            v = -20;
+        this.scaleoffset += v;
+        if (this.scaleoffset > 200)
+            this.scaleoffset = 200;
+        else if (this.scaleoffset < -200)
+            this.scaleoffset = -200;
+    }
+
+    public int getScaleoffset() {
+        return scaleoffset;
+    }
+
+    public int getScrolloffset() {
+        return scrolloffset;
     }
 }

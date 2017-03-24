@@ -47,7 +47,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        gd.clearOffset();
+        gd.clearScrolOffset();
         if (sdt != null) {
             sdt.flag = false;
             sdt = null;
@@ -56,8 +56,21 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!gtl.operateforbid_static && !gtl.operateforbit_action) {
-            gtl.scrollClick(event);
+        boolean flag = false;
+        if (event.getPointerCount() == 1) {
+            if (!gtl.operateforbid_static && !gtl.operateforbit_action) {
+                gtl.scrollClick(event);
+                gtl.workscrollClick(event);
+                flag = true;
+            }
+        } else if (event.getPointerCount() == 2) {
+            if (!gtl.operateforbid_static && !gtl.operateforbit_action) {
+                gtl.scaleClick(event);
+                flag = true;
+            }
+        }
+
+        if (flag) {
             Canvas canvas = getHolder().lockCanvas();
             doDraw(canvas);
             getHolder().unlockCanvasAndPost(canvas);

@@ -35,46 +35,46 @@ public class Const {
         /**
          * @param i :通过这个传入的参数，代入createPoint 来返还Point
          */
-        public static ToolPoint getPoint(int cx, int cy, int i, int scrolloffset) {
+        public static ToolPoint getPoint(int cx, int cy, int i, int scrolloffset, int scaleoffset) {
             if (i == 0)
                 return createPoint(cx, cy, 0, 0 + scrolloffset);
             else if (i == 1) {
-                ToolPoint tp = createPoint(cx, cy, Const.RADIUS, 90 + scrolloffset);
+                ToolPoint tp = createPoint(cx, cy, Const.RADIUS + scaleoffset, 90 + scrolloffset);
                 return tp;
             } else if (i == 2)
-                return createPoint(cx, cy, Const.RADIUS, 30 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS + scaleoffset, 30 + scrolloffset);
             else if (i == 3)
-                return createPoint(cx, cy, Const.RADIUS, -30 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS + scaleoffset, -30 + scrolloffset);
             else if (i == 4)
-                return createPoint(cx, cy, Const.RADIUS, -90 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS + scaleoffset, -90 + scrolloffset);
             else if (i == 5)
-                return createPoint(cx, cy, Const.RADIUS, -150 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS + scaleoffset, -150 + scrolloffset);
             else if (i == 6)
-                return createPoint(cx, cy, Const.RADIUS, 150 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS + scaleoffset, 150 + scrolloffset);
             else if (i == 7)
-                return createPoint(cx, cy, Const.RADIUS * 2, 90 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 90 + scrolloffset);
             else if (i == 8)
-                return createPoint(cx, cy, Const.RADIUS * 2, 60 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 60 + scrolloffset);
             else if (i == 9)
-                return createPoint(cx, cy, Const.RADIUS * 2, 30 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 30 + scrolloffset);
             else if (i == 10)
-                return createPoint(cx, cy, Const.RADIUS * 2, 0 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 0 + scrolloffset);
             else if (i == 11)
-                return createPoint(cx, cy, Const.RADIUS * 2, -30 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -30 + scrolloffset);
             else if (i == 12)
-                return createPoint(cx, cy, Const.RADIUS * 2, -60 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -60 + scrolloffset);
             else if (i == 13)
-                return createPoint(cx, cy, Const.RADIUS * 2, -90 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -90 + scrolloffset);
             else if (i == 14)
-                return createPoint(cx, cy, Const.RADIUS * 2, -120 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -120 + scrolloffset);
             else if (i == 15)
-                return createPoint(cx, cy, Const.RADIUS * 2, -150 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -150 + scrolloffset);
             else if (i == 16)
-                return createPoint(cx, cy, Const.RADIUS * 2, -180 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, -180 + scrolloffset);
             else if (i == 17)
-                return createPoint(cx, cy, Const.RADIUS * 2, 150 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 150 + scrolloffset);
             else if (i == 18)
-                return createPoint(cx, cy, Const.RADIUS * 2, 120 + scrolloffset);
+                return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 120 + scrolloffset);
             return null;
         }
     }           //工具类
