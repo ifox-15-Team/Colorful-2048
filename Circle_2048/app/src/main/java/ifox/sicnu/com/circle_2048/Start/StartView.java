@@ -9,7 +9,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import ifox.sicnu.com.circle_2048.Const;
+import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.R;
 import ifox.sicnu.com.circle_2048.StartActivity;
 

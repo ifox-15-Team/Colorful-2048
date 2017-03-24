@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="ifox.sicnu.com.circle_2048"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="ifox.sicnu.com.circle_2048"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
