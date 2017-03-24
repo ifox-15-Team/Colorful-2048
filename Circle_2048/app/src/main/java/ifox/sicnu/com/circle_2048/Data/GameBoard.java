@@ -16,6 +16,8 @@ public class GameBoard {
     public static final int PUSH = 2;
     public static final int POP = 3;
 
+    private ArrayList<Cell> cells_needDraw;
+
     public GameBoard() {
         center = new Cell(0);
         middle = new Cell[6];
@@ -26,6 +28,7 @@ public class GameBoard {
         for (int i = 0; i < 12; i++) {
             surface[i] = new Cell(i + 7);
         }                                           //初始化各种细胞
+        cells_needDraw = new ArrayList<>();
     }
 
     public Cell getCell(int index) {
@@ -81,6 +84,7 @@ public class GameBoard {
     private void combine(ArrayList<Cell> cells, int type) {
         for (int i = 0; i < cells.size() - 1; i++) {
             Cell a = cells.get(i);
+            a.setMoveType(type);
             if (a.getData() == 0)
                 continue;               //如果当前的判定的 a 数值为空，则判定下一个元素
             for (int j = 0; j < cells.size(); j++) {
@@ -90,13 +94,27 @@ public class GameBoard {
                 if (a.getData() == b.getData()) {               //它俩相等，并且都不等于0  (等于零已经被排除)
                     a.increaseData();
                     b.clearData();
+                    b.clearDisplay();
                     break;                                      //跳过对当前a 的判定。
                 }
             }
-        }               //完成对一个数据表的先归并
-        for (int i = 0; i < cells.size(); i++) {
-
         }
+        //完成对一个数据表的先归并
+        int spannum = 0;                //这个是将要进行位移的个数
+        int position = 0;               //这个是一个位移下标，通过这个下标来表示会位移到此处的细胞
+        for (int i = 0; i < cells.size(); i++) {
+            Cell cell = cells.get(i);
+            if (cell.getData() == 0) {
+                spannum++;                          //已经经过的空格数会进行自动加一
+            } else {
+                position++;                         //指向位移地址的下标会进行自动加一
+                cell.syncDisplay();                 //同步即将要显示的数据
+                cell.settimes(spannum);             //这是会进行位移的个数
+                cells.get(position).setData(cell.getData());            //将当前这个点的实际数据，平移到这条线的最左边去
+                cell.clearData();                   //再将自己的实际的数据进行清空
+                pushintoDrawList(cell);
+            }
+        }           //再完成对归并数据表后的位移
     }
 
     public void bordtypeincrease() {
@@ -114,5 +132,112 @@ public class GameBoard {
 
     public int getSurfaceBoarder() {
         return boardertype * 2 + 7;
+    }
+
+    //将所有细胞绘图有关的成员变量全部置为初始值
+    public void clearOffsetCells() {
+        for (int i = 0; i < middle.length; i++) {
+            middle[i].clearExceptData();
+        }
+        for (int i = 0; i < surface.length; i++) {
+            surface[i].clearExceptData();
+        }
+    }
+
+    public boolean isAction() {
+        if (cells_needDraw.size() == 0)
+            return false;
+        else
+            return true;
+    }
+
+    public Cell getNeedDraw(int index) {
+        return this.cells_needDraw.get(index);
+    }
+
+    public int size_needDraw() {
+        return this.cells_needDraw.size();
+    }
+
+    /**
+     * 当前细胞发出了它的进位信号，我们需要对它做进一步的处理
+     * 首先根据细胞的id 和 movetype 得到 它的下一个 继承者是谁，并将继承者cell 放入自己的 drawcell list中
+     * 第二步，清除自身的绘制的数据。
+     * 第三步，将自身从 drawcell list 中进行抹去
+     */
+    public void carrySignal(Cell cell) {
+        int id = cell.getId();
+        Cell cell2 = null;
+        if (id > 0 && id < 7) {
+            if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
+                int x = id - 1;
+                if (x < 1) {
+                    x += 6;
+                }
+                cell2 = getCell(x);            //这个是继承者细胞
+            }                                       //顺时针移动的时候，所有的点应该朝向比它下标更小的地方进行移动
+            else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
+                int x = id + 1;
+                if (x > 6) {
+                    x -= 6;
+                }
+                cell2 = getCell(x);
+            }
+        }               //当前的细胞的属于内圈细胞
+        else if (id > 6) {
+            if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
+                int x = id + 1;
+                if (x > 18) {
+                    x -= 12;
+                }
+                cell2 = getCell(x);
+            } else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
+                int x = id - 1;
+                if (x < 7) {
+                    x += 12;
+                }
+                cell2 = getCell(x);
+            }
+        }               //当前的细胞属于外圈细胞
+        cell2.settimes(cell.gettimes() - 1);
+        cell2.setMoveType(cell.getMovetype());
+        pushintoDrawList(cell2);
+        cell.clearExceptData();
+        removefromDrawList(cell);
+    }
+
+    private void removefromDrawList(Cell cell) {
+        this.cells_needDraw.remove(cell);
+    }
+
+    private void pushintoDrawList(Cell cell2) {
+        this.cells_needDraw.add(cell2);
+    }
+
+    //每次行动完了之后调用，能够自动产生一个新的细胞
+    public void createNewCell() {
+        //这里需要检查
+        for (int i = getSurfaceBoarder(); i < 13; i++) {
+            if (i > 18 || i < 7) {
+                i = 6;
+                continue;
+            }
+            if (getCell(i).getData() == 0) {
+                getCell(i).setData(1);
+                getCell(i).syncDisplay();
+                return;
+            }
+        }
+        //这里也需要检查
+        for (int i = getMiddleBoarder(); i < 7; i++) {
+            if (i > 6 || i < 1) {
+                i = 0;
+                continue;
+            }
+            if (getCell(i).getData() == 0) {
+                getCell(i).setData(1);
+                getCell(i).syncDisplay();
+            }
+        }
     }
 }

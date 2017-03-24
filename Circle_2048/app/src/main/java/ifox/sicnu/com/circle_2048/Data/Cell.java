@@ -76,7 +76,6 @@ public class Cell {
 
     public void clearData() {
         this.data = 0;
-        this.display = 0;
     }
 
     //增加自己的offset 如果增加到了极点到可进位的时候，会返还true
@@ -114,5 +113,30 @@ public class Cell {
 
     public int getMovetype() {
         return movetype;
+    }
+
+    //传入会进行绘制图案的步数
+    public void settimes(int times) {
+        this.last_steps = times;
+    }
+
+    public void clearDisplay() {
+        this.display = 0;
+    }
+
+    public void setMoveType(int type) {
+        this.movetype = type;
+    }
+
+    //清除自身除了id 和 data 之外的所有数据
+    public void clearExceptData() {
+        this.display = 0 ;
+        this.movetype = 0;
+        this.last_steps = 0;
+        this.offset = 0;
+    }
+
+    public int gettimes() {
+        return this.last_steps;
     }
 }

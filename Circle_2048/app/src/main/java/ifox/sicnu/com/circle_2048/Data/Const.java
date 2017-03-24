@@ -20,6 +20,7 @@ public class Const {
     public static Context context;
     public static GameDrawer gameDrawer;
     public static GameView gameView;
+    public static GameBoard gameBoard;
     public static int MIDDLELINE;
 
     public static class Tool {

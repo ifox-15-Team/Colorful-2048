@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.Data.Cell;
@@ -82,26 +81,6 @@ public class GameDrawer {
         DrawStaticCell(ofx, ofy, width, height, canvas);
     }
 
-    //绘制所有静态细胞的方法-->静态细胞会根据当前手势的变化而变化
-    private void DrawStaticCell(int ofx, int ofy, int width, int height, Canvas canvas) {
-//        Log.i(TAG, String.format("getPoint: %d", scrolloffset));
-        for (int i = 0; i < gameBoard.size(); i++) {
-            boolean isboarder = false;
-            Cell cell = gameBoard.getCell(i);
-            if (i == gameBoard.getMiddleBoarder() || i == gameBoard.getSurfaceBoarder()) {
-                isboarder = true;
-            }
-            Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset, scaleoffset);
-            if (isboarder)
-                paint.setColor(Color.YELLOW);
-            else
-                paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
-            if (i == 0)
-                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
-            else
-                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
-        }
-    }
 
     //绘制细胞的简单逻辑，由 绘制静态细胞 DrawStaticCell 调用
     private void DrawCell(int x, int y, int r, int level, Canvas canvas, int id, boolean display) {
@@ -134,8 +113,9 @@ public class GameDrawer {
         this.scrolloffset += index;
     }
 
-    public void clearScrolOffset() {
+    public void clearStaticOffset() {
         this.scrolloffset = 0;
+        this.scaleoffset = 0;
     }
 
     //如果偏移量不为0，说明正在偏移
@@ -153,11 +133,11 @@ public class GameDrawer {
         if (scrolloffset > 0) {
             this.scrolloffset -= 3;
             if (scrolloffset < 0)
-                clearScrolOffset();
+                clearStaticOffset();
         } else if (scrolloffset < 0) {
             this.scrolloffset += 3;
             if (scrolloffset > 0)
-                clearScrolOffset();
+                clearStaticOffset();
         }
         if (scaleoffset > 0) {
             this.scaleoffset -= 3;
@@ -192,5 +172,47 @@ public class GameDrawer {
 
     public int getScrolloffset() {
         return scrolloffset;
+    }
+
+    public void clearOffsetCells() {
+        gameBoard.clearOffsetCells();
+    }
+
+    //绘制所有静态细胞的方法-->静态细胞会根据当前手势的变化而变化
+    private void DrawStaticCell(int ofx, int ofy, int width, int height, Canvas canvas) {
+//        Log.i(TAG, String.format("getPoint: %d", scrolloffset));
+        for (int i = 0; i < gameBoard.size(); i++) {
+            boolean isboarder = false;
+            Cell cell = gameBoard.getCell(i);
+            if (i == gameBoard.getMiddleBoarder() || i == gameBoard.getSurfaceBoarder()) {
+                isboarder = true;
+            }
+            Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset, scaleoffset);
+            if (isboarder)
+                paint.setColor(Color.YELLOW);
+            else
+                paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
+            if (i == 0)
+                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
+            else
+                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
+        }
+    }
+
+    /**
+     * 传入正在移动的Cell，从而根据该cell自身的偏移量，再调用Const里的Tool 类的getPoint方法进行获取横纵坐标
+     */
+    public void drawActioncell(Cell cell, Canvas canvas) {
+        Const.ToolPoint point;
+        if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
+            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
+        } else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
+            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
+        } else if (cell.getMovetype() == GameBoard.POP) {
+            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset, scaleoffset + cell.getOffset());
+        } else {
+            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset, scaleoffset - cell.getOffset());
+        }
+        DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
     }
 }

@@ -8,6 +8,7 @@ import android.view.SurfaceView;
 
 import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.Data.GameBoard;
+import ifox.sicnu.com.circle_2048.Thread.ActionDrawThread;
 import ifox.sicnu.com.circle_2048.Thread.StaticDrawThread;
 
 /**
@@ -18,6 +19,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public GameDrawer gd;
     public GameTouchListener gtl;
     public StaticDrawThread sdt;
+    public ActionDrawThread adt;
 
     public GameView(Context context) {
         super(context);
@@ -27,6 +29,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         gd = new GameDrawer(gb);
         gtl = new GameTouchListener(gb);
         Const.gameDrawer = gd;
+        Const.gameBoard = gb;
     }
 
     public void doDraw(Canvas canvas) {
@@ -47,10 +50,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        gd.clearScrolOffset();
+        gd.clearStaticOffset();
         if (sdt != null) {
             sdt.flag = false;
             sdt = null;
+        }
+        if (adt != null) {
+            adt.flag = false;
+            adt = null;
         }
     }
 

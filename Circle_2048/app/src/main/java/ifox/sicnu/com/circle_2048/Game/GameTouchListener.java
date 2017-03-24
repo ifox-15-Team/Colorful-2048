@@ -1,11 +1,10 @@
 package ifox.sicnu.com.circle_2048.Game;
 
-import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
 import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.Data.GameBoard;
+import ifox.sicnu.com.circle_2048.Thread.ActionDrawThread;
 import ifox.sicnu.com.circle_2048.Thread.StaticDrawThread;
 
 /**
@@ -43,17 +42,35 @@ public class GameTouchListener {
             this.x = x;
             this.y = y;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {                //这个代表滑动起手的时候，产生的回滚的特效的处理
-            if (Const.gameView.sdt == null) {
-                Const.gameView.sdt = new StaticDrawThread();
-                Const.gameView.sdt.start();
-            } else if (!Const.gameView.sdt.flag) {
-                Const.gameView.sdt = new StaticDrawThread();
-                Const.gameView.sdt.start();
-            } else {
-                Const.gameDrawer.clearScrolOffset();
-                Const.gameView.sdt.flag = false;
-                Const.gameView.sdt = null;
-            }
+            CreateStaticThread();
+        }
+    }
+
+    private void CreateStaticThread() {
+        if (Const.gameView.sdt == null) {
+            Const.gameView.sdt = new StaticDrawThread();
+            Const.gameView.sdt.start();
+        } else if (!Const.gameView.sdt.flag) {
+            Const.gameView.sdt = new StaticDrawThread();
+            Const.gameView.sdt.start();
+        } else {
+            Const.gameDrawer.clearStaticOffset();
+            Const.gameView.sdt.flag = false;
+            Const.gameView.sdt = null;
+        }
+    }
+
+    private void CreateActionThread() {
+        if (Const.gameView.adt == null) {
+            Const.gameView.adt = new ActionDrawThread();
+            Const.gameView.adt.start();
+        } else if (!Const.gameView.adt.flag) {
+            Const.gameView.adt = new ActionDrawThread();
+            Const.gameView.adt.start();
+        } else {
+            Const.gameDrawer.clearOffsetCells();
+            Const.gameView.adt.flag = false;
+            Const.gameView.adt = null;
         }
     }
 
@@ -76,10 +93,14 @@ public class GameTouchListener {
                 flag = true;
                 gameBoard.operatePositive();
             }
-            if (flag)
+            if (flag) {
                 gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
+                gameBoard.createNewCell();
+                CreateActionThread();
+            }
         }
     }
+
 
     public void scaleClick(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
