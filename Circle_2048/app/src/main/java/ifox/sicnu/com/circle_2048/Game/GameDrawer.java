@@ -95,7 +95,7 @@ public class GameDrawer {
             if (isboarder)
                 paint.setColor(Color.YELLOW);
             else
-                paint.setColor(Color.DKGRAY);
+                paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
             if (i == 0)
                 DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
             else

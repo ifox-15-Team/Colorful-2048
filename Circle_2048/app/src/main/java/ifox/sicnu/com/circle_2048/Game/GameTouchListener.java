@@ -62,16 +62,22 @@ public class GameTouchListener {
             this.tx = (int) event.getX();
             this.ty = (int) event.getY();
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            boolean flag = false;                           //成功行动的标志
             if (Const.gameDrawer.getScaleoffset() > 5) {
+                flag = true;
                 gameBoard.operatePush();
             } else if (Const.gameDrawer.getScaleoffset() < -5) {
+                flag = true;
                 gameBoard.operatePop();
             } else if (Const.gameDrawer.getScrolloffset() > 5) {
+                flag = true;
                 gameBoard.operateNegetive();
             } else if (Const.gameDrawer.getScrolloffset() < -5) {
+                flag = true;
                 gameBoard.operatePositive();
             }
-            gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
+            if (flag)
+                gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
         }
     }
 

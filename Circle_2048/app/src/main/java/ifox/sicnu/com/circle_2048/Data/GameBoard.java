@@ -55,8 +55,26 @@ public class GameBoard {
 
     }
 
+    //顺时针旋转
     public void operatePositive() {
-
+        ArrayList<Cell> cells = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            int x = getMiddleBoarder() + i;
+            if (x > 6) {
+                x -= 6;
+            }                       //得到内圆环里的每一个
+            cells.add(getCell(x));
+            combine(cells, GameBoard.ROTATE_POSITIVE);
+        }
+        ArrayList<Cell> cells2 = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            int x = getSurfaceBoarder() + i;
+            if (x > 18) {
+                x -= 12;
+            }
+            cells.add(getCell(x));
+            combine(cells2, GameBoard.ROTATE_POSITIVE);
+        }
     }
 
     //传入一个cell数组，从而对它们进行合并化简
@@ -71,10 +89,13 @@ public class GameBoard {
                     continue;                                   //如果当前判定的 b 的数值为空，则判定下一个元素
                 if (a.getData() == b.getData()) {               //它俩相等，并且都不等于0  (等于零已经被排除)
                     a.increaseData();
-                    b.clearDataandSetoffset(type);
+                    b.clearData();
                     break;                                      //跳过对当前a 的判定。
                 }
             }
+        }               //完成对一个数据表的先归并
+        for (int i = 0; i < cells.size(); i++) {
+
         }
     }
 

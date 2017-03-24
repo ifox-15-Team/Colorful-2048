@@ -74,6 +74,11 @@ public class Cell {
         this.movetype = type;
     }
 
+    public void clearData() {
+        this.data = 0;
+        this.display = 0;
+    }
+
     //增加自己的offset 如果增加到了极点到可进位的时候，会返还true
     public boolean increaseOffset() {
         this.offset += 2;
