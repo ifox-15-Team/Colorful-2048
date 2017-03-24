@@ -69,7 +69,7 @@ public class GameDrawer {
     }
 
     public void doDraw(Canvas canvas) {
-        Log.i(TAG, String.format("doDraw: %d",scrolloffset));
+        Log.i(TAG, String.format("doDraw: %d", scrolloffset));
         DrawLeft(Const.MIDDLELINE, Const.HEIGHT_SC, canvas);                                                                      // 传入给绘制左边的逻辑的宽高
         DrawRight(Const.MIDDLELINE, 0, (int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC, canvas);                                   // 传入给绘制右边逻辑的宽高
     }
@@ -143,13 +143,13 @@ public class GameDrawer {
     }
 
     public void suboffset() {
-        this.scrolloffset /= 2;
+        this.scrolloffset *= 0.95;
         if (scrolloffset > 0) {
-            this.scrolloffset -= 10;
+            this.scrolloffset -= 3;
             if (scrolloffset < 0)
                 clearOffset();
         } else {
-            this.scrolloffset += 10;
+            this.scrolloffset += 3;
             if (scrolloffset > 0)
                 clearOffset();
         }

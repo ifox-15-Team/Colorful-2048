@@ -20,6 +20,7 @@ public class StaticDrawThread extends Thread {
     @Override
     public void run() {
         while (flag) {
+            Const.gameView.gtl.operateforbid_static = true;
             if (Const.gameDrawer.isoffseting()) {
                 Const.gameDrawer.suboffset();
                 Canvas canvas = sh.lockCanvas();
@@ -30,7 +31,10 @@ public class StaticDrawThread extends Thread {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }
+            } else
+                flag = false;
         }
+        //如果之后还有操作正在进行
+        Const.gameView.gtl.operateforbid_static = false;
     }
 }

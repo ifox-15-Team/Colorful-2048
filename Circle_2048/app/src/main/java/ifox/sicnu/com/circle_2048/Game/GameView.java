@@ -14,9 +14,9 @@ import ifox.sicnu.com.circle_2048.Thread.StaticDrawThread;
  * Created by Funchou Fu on 2017/3/23.
  */
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-    GameBoard gb;
-    GameDrawer gd;
-    GameTouchListener gtl;
+    public GameBoard gb;
+    public GameDrawer gd;
+    public GameTouchListener gtl;
     public StaticDrawThread sdt;
 
     public GameView(Context context) {
@@ -56,10 +56,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        gtl.scrollClick(event);
-        Canvas canvas = getHolder().lockCanvas();
-        doDraw(canvas);
-        getHolder().unlockCanvasAndPost(canvas);
+        if (!gtl.operateforbid_static && !gtl.operateforbit_action) {
+            gtl.scrollClick(event);
+            Canvas canvas = getHolder().lockCanvas();
+            doDraw(canvas);
+            getHolder().unlockCanvasAndPost(canvas);
+        }
         return true;
     }
 }

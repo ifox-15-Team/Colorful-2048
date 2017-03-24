@@ -18,6 +18,8 @@ public class GameTouchListener {
     int x;
     int y;              //Move时的x坐标，y坐标
     //右边界面占比0.75
+    public boolean operateforbid_static = false;
+    public boolean operateforbit_action = false;               // 两个变量任意一个为true 时，玩家的操作被进制，由外部调用，而非自身调用
 
     public GameTouchListener(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
@@ -36,11 +38,13 @@ public class GameTouchListener {
                 Const.gameDrawer.addOffset((y - this.y) / 2);           //让滑动不那么迅速
             else if (x > Const.WIDTH_SC * 0.625)
                 Const.gameDrawer.addOffset((this.y - y) / 2);
-
             this.x = x;
             this.y = y;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             if (Const.gameView.sdt == null) {
+                Const.gameView.sdt = new StaticDrawThread();
+                Const.gameView.sdt.start();
+            } else if (!Const.gameView.sdt.flag) {
                 Const.gameView.sdt = new StaticDrawThread();
                 Const.gameView.sdt.start();
             } else {
