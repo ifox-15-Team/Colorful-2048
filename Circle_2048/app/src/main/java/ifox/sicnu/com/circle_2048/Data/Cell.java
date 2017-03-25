@@ -80,18 +80,19 @@ public class Cell {
 
     //增加自己的offset 如果增加到了极点到可进位的时候，会返还true
     public boolean increaseOffset() {
+        this.offset *= 1.1;
         this.offset += 2;
         if (this.movetype == GameBoard.ROTATE_POSITIVE || this.movetype == GameBoard.ROTATE_NEGETIVE) {
             if (id > 0 && id < 7) {
-                if (this.offset > Cell.ROTATE_MIDDLE) {
-                    this.offset = Cell.ROTATE_MIDDLE;
+                if (this.offset > Cell.ROTATE_MIDDLE * this.last_steps) {
+                    this.offset = Cell.ROTATE_MIDDLE * this.last_steps;
                     return true;
                 } else
                     return false;
             }   //内圈_旋转
             else if (id > 6) {
-                if (this.offset > Cell.ROTATE_SURFACE) {
-                    this.offset = Cell.ROTATE_SURFACE;
+                if (this.offset > Cell.ROTATE_SURFACE * this.last_steps) {
+                    this.offset = Cell.ROTATE_SURFACE * this.last_steps;
                     return true;
                 } else
                     return false;
@@ -130,7 +131,7 @@ public class Cell {
 
     //清除自身除了id 和 data 之外的所有数据
     public void clearExceptData() {
-        this.display = 0 ;
+        this.display = 0;
         this.movetype = 0;
         this.last_steps = 0;
         this.offset = 0;
@@ -138,5 +139,17 @@ public class Cell {
 
     public int gettimes() {
         return this.last_steps;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("id:%d data:%d display:%d offset:%d times:%d", this.id, this.data, this.display, this.offset, this.last_steps);
+    }
+
+    public boolean isEmpty() {
+        if (this.data == 0)
+            return true;
+        else
+            return false;
     }
 }

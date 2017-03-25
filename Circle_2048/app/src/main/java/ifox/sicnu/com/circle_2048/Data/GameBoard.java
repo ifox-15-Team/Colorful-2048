@@ -1,11 +1,14 @@
 package ifox.sicnu.com.circle_2048.Data;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
  * Created by Funchou Fu on 2017/3/23.
  */
 public class GameBoard {
+    private static final String TAG = "GameBoard";
     private Cell center;
     private Cell[] middle;
     private Cell[] surface;                         //分别代表 最里面的Cell id:0， 中间的6个 Cell id:1~6, 最外围的Cell id:7~18;
@@ -47,19 +50,20 @@ public class GameBoard {
     }
 
     public void operatePush() {
-
+        operateAllowed(GameBoard.PUSH);
     }
 
     public void operatePop() {
-
+        operateAllowed(GameBoard.POP);
     }
 
     public void operateNegetive() {
-
+        operateAllowed(GameBoard.ROTATE_NEGETIVE);
     }
 
     //顺时针旋转
     public void operatePositive() {
+        operateAllowed(GameBoard.ROTATE_POSITIVE);
         ArrayList<Cell> cells = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             int x = getMiddleBoarder() + i;
@@ -67,17 +71,22 @@ public class GameBoard {
                 x -= 6;
             }                       //得到内圆环里的每一个
             cells.add(getCell(x));
-            combine(cells, GameBoard.ROTATE_POSITIVE);
         }
+        combine(cells, GameBoard.ROTATE_POSITIVE);
         ArrayList<Cell> cells2 = new ArrayList<>();
         for (int i = 0; i < 12; i++) {
             int x = getSurfaceBoarder() + i;
             if (x > 18) {
                 x -= 12;
             }
-            cells.add(getCell(x));
-            combine(cells2, GameBoard.ROTATE_POSITIVE);
+            cells2.add(getCell(x));
         }
+        combine(cells2, GameBoard.ROTATE_POSITIVE);
+    }
+
+    //自动判定当前的行动是否合乎要求。
+    private boolean operateAllowed(int type) {
+        return true;
     }
 
     //传入一个cell数组，从而对它们进行合并化简
@@ -87,16 +96,18 @@ public class GameBoard {
             a.setMoveType(type);
             if (a.getData() == 0)
                 continue;               //如果当前的判定的 a 数值为空，则判定下一个元素
-            for (int j = 0; j < cells.size(); j++) {
+            for (int j = i + 1; j < cells.size(); j++) {
                 Cell b = cells.get(j);
                 if (b.getData() == 0)
                     continue;                                   //如果当前判定的 b 的数值为空，则判定下一个元素
                 if (a.getData() == b.getData()) {               //它俩相等，并且都不等于0  (等于零已经被排除)
+                    Log.i(TAG, String.format("Combine %d %d", a.getId(), b.getId()));
                     a.increaseData();
                     b.clearData();
                     b.clearDisplay();
                     break;                                      //跳过对当前a 的判定。
-                }
+                } else
+                    break;
             }
         }
         //完成对一个数据表的先归并
@@ -107,12 +118,17 @@ public class GameBoard {
             if (cell.getData() == 0) {
                 spannum++;                          //已经经过的空格数会进行自动加一
             } else {
-                position++;                         //指向位移地址的下标会进行自动加一
                 cell.syncDisplay();                 //同步即将要显示的数据
                 cell.settimes(spannum);             //这是会进行位移的个数
-                cells.get(position).setData(cell.getData());            //将当前这个点的实际数据，平移到这条线的最左边去
-                cell.clearData();                   //再将自己的实际的数据进行清空
-                pushintoDrawList(cell);
+                if (position != i) {
+                    cells.get(position).setData(cell.getData());            //将当前这个点的实际数据，平移到这条线的最左边去
+                    cell.clearData();                   //再将自己的实际的数据进行清空
+                }
+                if (cell.gettimes() != 0) {
+                    Log.i(TAG, String.format("combine: %d has been pushed into the list offsets is : %d", cell.getId(), cell.gettimes()));
+                    pushintoDrawList(cell);
+                }
+                position++;                         //指向位移地址的下标会进行自动加一
             }
         }           //再完成对归并数据表后的位移
     }
@@ -168,6 +184,10 @@ public class GameBoard {
     public void carrySignal(Cell cell) {
         int id = cell.getId();
         Cell cell2 = null;
+        if (cell.isStatic()) {
+            removefromDrawList(cell);
+            return;
+        }
         if (id > 0 && id < 7) {
             if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
                 int x = id - 1;
@@ -206,38 +226,96 @@ public class GameBoard {
         removefromDrawList(cell);
     }
 
-    private void removefromDrawList(Cell cell) {
+    public void removefromDrawList(Cell cell) {
         this.cells_needDraw.remove(cell);
     }
 
-    private void pushintoDrawList(Cell cell2) {
+    public void pushintoDrawList(Cell cell2) {
         this.cells_needDraw.add(cell2);
     }
 
     //每次行动完了之后调用，能够自动产生一个新的细胞
-    public void createNewCell() {
-        //这里需要检查
-        for (int i = getSurfaceBoarder(); i < 13; i++) {
-            if (i > 18 || i < 7) {
-                i = 6;
+    public boolean createNewCell() {
+//        //这里需要检查
+//        for (int i = getSurfaceBoarder(); i < 13; i++) {
+//            if (i > 18 || i < 7) {
+//                i = 6;
+//                continue;
+//            }
+//            if (getCell(i).getData() == 0) {
+//                getCell(i).setData(1);
+//                getCell(i).syncDisplay();
+//                return;
+//            }
+//        }
+//        //这里也需要检查
+//        for (int i = getMiddleBoarder(); i < 7; i++) {
+//            if (i > 6 || i < 1) {
+//                i = 0;
+//                continue;
+//            }
+//            if (getCell(i).getData() == 0) {
+//                getCell(i).setData(1);
+//                getCell(i).syncDisplay();
+//            }
+//        }
+        int random_num = (int) (Math.random() * 18 + 1);
+        boolean full = false;               //这是判定是否当前存在着全满状态。如果有全满状态。
+        for (int i = random_num; i < size(); i++) {
+            if (i < 1)
+                continue;
+            else if (i > 18) {
+                i = 0;
+                if (!full) {
+                    full = true;
+                } else {
+                    return false;
+                }
                 continue;
             }
-            if (getCell(i).getData() == 0) {
-                getCell(i).setData(1);
+            if (getCell(i).isEmpty()) {
+                getCell(i).setData((int) (Math.random() * 2) + 1);          //随机生成2 或者 4
                 getCell(i).syncDisplay();
-                return;
+                break;
             }
         }
-        //这里也需要检查
-        for (int i = getMiddleBoarder(); i < 7; i++) {
-            if (i > 6 || i < 1) {
-                i = 0;
-                continue;
+        return true;                        //在生成了具体元素后，会进行弹出，并返还一个true
+    }
+
+    public void debug() {
+        for (int i = 0; i < this.size(); i++) {
+            Log.i(TAG, String.format("All %s", this.getCell(i)));
+        }
+        for (int i = 0; i < this.cells_needDraw.size(); i++) {
+            Log.i(TAG, String.format("Need %s", this.cells_needDraw.get(i).toString()));
+        }
+    }
+
+    //当传入的这个cell已经完成了它的动画同步后，在调用此方法，此细胞的display清空。同时将目标的cell进行数据同步
+    public void synctheMovingCell(Cell cell) {
+        cell.clearDisplay();
+        if (cell.getId() > 6) {
+            int x = cell.getId();
+            if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
+                x -= cell.gettimes();
+            } else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
+                x += cell.gettimes();
             }
-            if (getCell(i).getData() == 0) {
-                getCell(i).setData(1);
-                getCell(i).syncDisplay();
-            }
+            if (x < 7)
+                x += 12;
+            else if (x > 18)
+                x -= 12;
+            getCell(x).syncDisplay();
+            cell.clearExceptData();
+        }//此时的细胞是外圈细胞
+        else {
+
+        }
+    }
+
+    public void debugsyncAll() {
+        for (int i = 0; i < size(); i++) {
+            getCell(i).syncDisplay();
         }
     }
 }

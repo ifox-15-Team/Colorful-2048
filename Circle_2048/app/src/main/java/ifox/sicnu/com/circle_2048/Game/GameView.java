@@ -26,6 +26,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Const.gameView = this;
         getHolder().addCallback(this);
         gb = new GameBoard();
+        gb.createNewCell();
+        gb.debug();
         gd = new GameDrawer(gb);
         gtl = new GameTouchListener(gb);
         Const.gameDrawer = gd;

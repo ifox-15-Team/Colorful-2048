@@ -79,21 +79,23 @@ public class GameDrawer {
         paint.setStyle(Paint.Style.FILL);
         canvas.drawRect(ofx, ofy, width + ofx, height, paint);
         DrawStaticCell(ofx, ofy, width, height, canvas);
+        if (Const.gameView.adt != null && Const.gameView.adt.flag)
+            for (int i = 0; i < gameBoard.size_needDraw(); i++) {
+                DrawEachActioncell(gameBoard.getNeedDraw(i), ofx, ofy, width, height, canvas);
+            }
     }
 
 
     //绘制细胞的简单逻辑，由 绘制静态细胞 DrawStaticCell 调用
-    private void DrawCell(int x, int y, int r, int level, Canvas canvas, int id, boolean display) {
+    private void DrawCell(int x, int y, int r, int level, Canvas canvas, int id) {
         canvas.drawCircle(x, y, r, paint);
         int drx = x - Const.BASESPAN / 2;
         int dry = y - Const.BASESPAN / 2;
         paint.setColor(Color.RED);
         canvas.drawText(String.valueOf(id), drx, dry, paint);
-        if (display) {
-            Bitmap bitmap = getBitmapByLevel(level);
-            if (bitmap != null)
-                canvas.drawBitmap(bitmap, drx, dry, null);
-        }
+        Bitmap bitmap = getBitmapByLevel(level);
+        if (bitmap != null)
+            canvas.drawBitmap(bitmap, drx, dry, null);
     }
 
     private void DrawLeft(int width, int height, Canvas canvas) {
@@ -193,26 +195,27 @@ public class GameDrawer {
             else
                 paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
             if (i == 0)
-                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
+                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId());
             else
-                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
+                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId());             //只有静态的细胞，才会绘制里面的display
         }
     }
 
     /**
      * 传入正在移动的Cell，从而根据该cell自身的偏移量，再调用Const里的Tool 类的getPoint方法进行获取横纵坐标
      */
-    public void drawActioncell(Cell cell, Canvas canvas) {
+    private void DrawEachActioncell(Cell cell, int ofx, int ofy, int width, int height, Canvas canvas) {
         Const.ToolPoint point;
         if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
-            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
+            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
         } else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
-            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
+            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
         } else if (cell.getMovetype() == GameBoard.POP) {
-            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset, scaleoffset + cell.getOffset());
+            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset, scaleoffset + cell.getOffset());
         } else {
-            point = Const.Tool.getPoint((int) (Const.WIDTH_SC * 0.75), Const.HEIGHT_SC / 2, cell.getId(), scrolloffset, scaleoffset - cell.getOffset());
+            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset, scaleoffset - cell.getOffset());
         }
-        DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());
+        paint.setColor(Color.DKGRAY);
+        DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId());
     }
 }

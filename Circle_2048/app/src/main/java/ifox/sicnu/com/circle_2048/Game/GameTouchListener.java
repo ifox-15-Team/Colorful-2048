@@ -1,6 +1,7 @@
 package ifox.sicnu.com.circle_2048.Game;
 
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.Data.GameBoard;
@@ -81,10 +82,10 @@ public class GameTouchListener {
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             boolean flag = false;                           //成功行动的标志
             if (Const.gameDrawer.getScaleoffset() > 5) {
-                flag = true;
+//                flag = true;
                 gameBoard.operatePush();
             } else if (Const.gameDrawer.getScaleoffset() < -5) {
-                flag = true;
+//                flag = true;
                 gameBoard.operatePop();
             } else if (Const.gameDrawer.getScrolloffset() > 5) {
                 flag = true;
@@ -94,9 +95,13 @@ public class GameTouchListener {
                 gameBoard.operatePositive();
             }
             if (flag) {
-                gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
-                gameBoard.createNewCell();
                 CreateActionThread();
+//                gameBoard.debug();
+                gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
+                if (!gameBoard.createNewCell()) {
+                    Toast.makeText(Const.context, "游戏结束", Toast.LENGTH_SHORT).show();
+                }                                                   //如果产生新细胞失败，那么会
+//                gameBoard.debugsyncAll();
             }
         }
     }
