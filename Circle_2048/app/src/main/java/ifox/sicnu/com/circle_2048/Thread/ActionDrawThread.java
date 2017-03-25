@@ -18,16 +18,13 @@ public class ActionDrawThread extends Thread {
 
     public ActionDrawThread() {
         if (flag)
-            Log.i(TAG, String.format("ActionDrawThread: OKOK"));
-        sh = Const.gameView.getHolder();
+            sh = Const.gameView.getHolder();
     }
 
     @Override
     public void run() {
-        Log.i(TAG, String.format("run1: %d", Const.gameBoard.size_needDraw()));
         while (flag) {
             Const.gameView.gtl.operateforbit_action = true;
-            Log.i(TAG, String.format("run2: %d", Const.gameBoard.size_needDraw()));
             while (Const.gameBoard.isAction()) {
                 Canvas canvas = sh.lockCanvas();
                 Log.i(TAG, String.format("run3: %d", Const.gameBoard.size_needDraw()));
@@ -48,6 +45,9 @@ public class ActionDrawThread extends Thread {
             }
             flag = false;
         }
+        Canvas canvas = sh.lockCanvas();
+        Const.gameDrawer.doDraw(canvas);
+        sh.unlockCanvasAndPost(canvas);
         Const.gameView.gtl.operateforbit_action = false;
     }
 }

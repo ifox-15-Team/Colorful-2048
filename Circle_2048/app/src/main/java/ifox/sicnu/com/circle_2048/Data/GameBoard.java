@@ -294,6 +294,7 @@ public class GameBoard {
     //当传入的这个cell已经完成了它的动画同步后，在调用此方法，此细胞的display清空。同时将目标的cell进行数据同步
     public void synctheMovingCell(Cell cell) {
         cell.clearDisplay();
+        Log.i(TAG, String.format("synctheMovingCell: %d has Finished", cell.getId()));
         if (cell.getId() > 6) {
             int x = cell.getId();
             if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
