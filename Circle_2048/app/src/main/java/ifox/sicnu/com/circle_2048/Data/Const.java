@@ -1,7 +1,8 @@
 package ifox.sicnu.com.circle_2048.Data;
 
 import android.content.Context;
-import android.util.Log;
+
+import java.util.ArrayList;
 
 import ifox.sicnu.com.circle_2048.Game.GameDrawer;
 import ifox.sicnu.com.circle_2048.Game.GameView;
@@ -77,6 +78,38 @@ public class Const {
             else if (i == 18)
                 return createPoint(cx, cy, Const.RADIUS * 2 + scaleoffset, 120 + scrolloffset);
             return null;
+        }
+
+        /*不重复的添加整型元素*/
+        public static void putIntegerIntoList_nosame(ArrayList<Integer> integers, int a) {
+            boolean flag = true;
+            for (int i = 0; i < integers.size(); i++) {
+                if (integers.get(i) == a) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag)
+                integers.add(a);
+        }
+
+        public static void removeIntegerIntheList(ArrayList<Integer> integers, int a) {
+            for (int i = 0; i < integers.size(); i++) {
+                if (integers.get(i) == a) {
+                    integers.remove(i);
+                    break;
+                }
+            }
+        }
+
+        //检查integers 列表里 是否有 整数 a
+        public static boolean checkIntegerIntheList(ArrayList<Integer> integers, int a) {
+            for (int i = 0; i < integers.size(); i++) {
+                if (integers.get(i) == a) {
+                    return true;
+                }
+            }
+            return false;
         }
     }           //工具类
 

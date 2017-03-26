@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import ifox.sicnu.com.circle_2048.Data.Const;
 import ifox.sicnu.com.circle_2048.Data.Cell;
@@ -78,11 +79,41 @@ public class GameDrawer {
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawRect(ofx, ofy, width + ofx, height, paint);
+//        if (Const.gameView.adt == null || !Const.gameView.adt.flag)
         DrawStaticCell(ofx, ofy, width, height, canvas);
-        if (Const.gameView.adt != null && Const.gameView.adt.flag)
-            for (int i = 0; i < gameBoard.size_needDraw(); i++) {
-                DrawEachActioncell(gameBoard.getNeedDraw(i), ofx, ofy, width, height, canvas);
+        if (Const.gameView.adt != null && Const.gameView.adt.flag) {
+            DrawActionCell(ofx, ofy, width, height, canvas);
+        }
+    }
+
+    private void DrawActionCell(int ofx, int ofy, int width, int height, Canvas canvas) {
+        for (int i = 0; i < gameBoard.size_lastneedDraw(); i++) {
+            DrawEachActioncell(gameBoard.getLastNeedDraw(i), ofx, ofy, width, height, canvas);
+        }
+        for (int i = 0; i < gameBoard.size_firstneedDraw(); i++) {
+            DrawEachActioncell(gameBoard.getFirstNeedDraw(i), ofx, ofy, width, height, canvas);
+        }
+    }
+
+    //绘制所有静态细胞的方法-->静态细胞会根据当前手势的变化而变化
+    private void DrawStaticCell(int ofx, int ofy, int width, int height, Canvas canvas) {
+//        Log.i(TAG, String.format("getPoint: %d", scrolloffset));
+        for (int i = 0; i < gameBoard.size(); i++) {
+            boolean isboarder = false;
+            Cell cell = gameBoard.getCell(i);
+            if (i == gameBoard.getMiddleBoarder() || i == gameBoard.getSurfaceBoarder()) {
+                isboarder = true;
             }
+            Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset, scaleoffset);
+            if (isboarder)
+                paint.setColor(Color.YELLOW);
+            else
+                paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
+            if (i == 0)
+                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), true);
+            else
+                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
+        }
     }
 
 
@@ -97,6 +128,7 @@ public class GameDrawer {
             Bitmap bitmap = getBitmapByLevel(level);
             if (bitmap != null)
                 canvas.drawBitmap(bitmap, drx, dry, null);
+        } else {
         }
     }
 
@@ -180,27 +212,6 @@ public class GameDrawer {
 
     public void clearOffsetCells() {
         gameBoard.clearOffsetCells();
-    }
-
-    //绘制所有静态细胞的方法-->静态细胞会根据当前手势的变化而变化
-    private void DrawStaticCell(int ofx, int ofy, int width, int height, Canvas canvas) {
-//        Log.i(TAG, String.format("getPoint: %d", scrolloffset));
-        for (int i = 0; i < gameBoard.size(); i++) {
-            boolean isboarder = false;
-            Cell cell = gameBoard.getCell(i);
-            if (i == gameBoard.getMiddleBoarder() || i == gameBoard.getSurfaceBoarder()) {
-                isboarder = true;
-            }
-            Const.ToolPoint point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, i, scrolloffset, scaleoffset);
-            if (isboarder)
-                paint.setColor(Color.YELLOW);
-            else
-                paint.setColor(Color.DKGRAY);                       //如果当前的点是边界，那么对当前点的背景绘制就变为黄色，否则是灰色
-            if (i == 0)
-                DrawCell(point.x, point.y, Const.CELL_BIG, cell.getDisplay(), canvas, cell.getId(), true);
-            else
-                DrawCell(point.x, point.y, Const.CELL_SMALL, cell.getDisplay(), canvas, cell.getId(), cell.isStatic());             //只有静态的细胞，才会绘制里面的display
-        }
     }
 
     /**
