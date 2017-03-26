@@ -16,6 +16,7 @@ public class Cell {
     private int movetype;               //type在GameBoard中进行定义
     private boolean isstatic = true;           //true 则代表该cell是static
     private boolean isalive = true;             //true 代表该cell 仍然可以被动态绘制 每次重新归零的时候，会再赋值true， 达到offset 峰值的时候，会变成false
+    private int buffer;                 //这是一个buffer ， 用来接受合并后的数据
 
     public static final int ROTATE_SURFACE = 30;
     public static final int ROTATE_MIDDLE = 60;                 //在内(外)圈的时候，offset达到这(上面)个数值就会进行进位
@@ -84,20 +85,20 @@ public class Cell {
             steps = this.first_steps;
         else
             steps = this.last_steps;
-        if (type == Cell.MOVE)
-            Log.i(TAG, String.format("increaseOffset: %d", steps));
+//        if (type == Cell.MOVE)
+//            Log.i(TAG, String.format("increaseOffset: %d", steps));
         if (this.movetype == GameBoard.ROTATE_POSITIVE || this.movetype == GameBoard.ROTATE_NEGETIVE) {
             if (id > 0 && id < 7) {
                 if (this.offset > Cell.ROTATE_MIDDLE * steps) {
                     this.offset = Cell.ROTATE_MIDDLE * steps;
-                    clearsteps(type);
+//                    clearsteps(type);
                     return true;
                 }
             }   //内圈_旋转
             else if (id > 6) {
                 if (this.offset > Cell.ROTATE_SURFACE * steps) {
                     this.offset = Cell.ROTATE_SURFACE * steps;
-                    clearsteps(type);
+//                    clearsteps(type);
                     return true;
                 }
             }   //外圈_旋转
@@ -105,7 +106,7 @@ public class Cell {
         else {
             if (this.offset > Cell.PUSH_MAX * steps) {
                 this.offset = Cell.PUSH_MAX * steps;
-                clearsteps(type);
+//                clearsteps(type);
                 return true;
             }
         }           //如果它的运动方式是收放系
@@ -142,6 +143,7 @@ public class Cell {
         this.first_steps = 0;
         this.last_steps = 0;
         this.offset = 0;
+        this.buffer = 0;
         this.isstatic = true;
         this.isalive = true;
     }
@@ -152,7 +154,7 @@ public class Cell {
 
     @Override
     public String toString() {
-        return String.format("id:%d data:%d display:%d offset:%d firsttimes:%d lasttimes:%d isstatic:%b isAlive:%b ", this.id, this.data, this.display, this.offset, this.first_steps, this.last_steps, this.isstatic, this.isalive);
+        return String.format("id:%d data:%d display:%d offset:%d firsttimes:%d lasttimes:%d isstatic:%b isAlive:%b buffer:%d ", this.id, this.data, this.display, this.offset, this.first_steps, this.last_steps, this.isstatic, this.isalive, this.buffer);
     }
 
     public boolean isEmpty() {
@@ -202,15 +204,21 @@ public class Cell {
         this.isalive = false;
     }
 
-    public void syncTargetDisplay() {
+    public void syncTargetAction(int type) {
         int x = 0;
+        int steps = 0;
+        if (type == Cell.MOVE) {
+            steps = this.last_steps;
+        } else {
+            steps = this.first_steps;
+        }
         if (this.id < 7) {
             if (this.movetype == GameBoard.ROTATE_NEGETIVE) {
-                x = this.id + this.last_steps;
+                x = this.id + steps;
                 if (x > 6)
                     x -= 6;
             } else if (this.movetype == GameBoard.ROTATE_POSITIVE) {
-                x = this.id - this.last_steps;
+                x = this.id - steps;
                 if (x < 1)
                     x += 6;
             } else {
@@ -223,11 +231,11 @@ public class Cell {
         }//内圈
         else {
             if (this.movetype == GameBoard.ROTATE_NEGETIVE) {
-                x = this.id + this.last_steps;
+                x = this.id + steps;
                 if (x > 18)
                     x -= 12;
             } else if (this.movetype == GameBoard.ROTATE_POSITIVE) {
-                x = this.id - this.last_steps;
+                x = this.id - steps;
                 if (x < 7)
                     x += 12;
             } else {
@@ -239,6 +247,57 @@ public class Cell {
                 //PUSH 如果 step == 2 则默认为0
             }
         }
-        Const.gameBoard.getCell(x).syncDisplay();
+        Cell cell2 = Const.gameBoard.getCell(x);
+        cell2.setStatic(false);
+    }
+
+    public void syncTargetSync() {
+        int x = 0;
+        if (this.id < 7) {
+            if (this.movetype == GameBoard.ROTATE_NEGETIVE) {
+                x = this.id + this.first_steps;
+                if (x > 6)
+                    x -= 6;
+            } else if (this.movetype == GameBoard.ROTATE_POSITIVE) {
+                x = this.id - this.first_steps;
+                if (x < 1)
+                    x += 6;
+            } else {
+                if (this.movetype == GameBoard.POP) {
+                    x = this.id * 2 + 5;
+                } else {
+                    x = 0;
+                }           //PUSH 如果 step == 2 则默认为0
+            }
+        }//内圈
+        else {
+            if (this.movetype == GameBoard.ROTATE_NEGETIVE) {
+                x = this.id + this.first_steps;
+                if (x > 18)
+                    x -= 12;
+            } else if (this.movetype == GameBoard.ROTATE_POSITIVE) {
+                x = this.id - this.first_steps;
+                if (x < 7)
+                    x += 12;
+            } else {
+                if (first_steps == 2) {
+                    x = 0;
+                } else {
+                    x = (this.id - 5) / 2;
+                }
+                //PUSH 如果 step == 2 则默认为0
+            }
+        }
+        Log.i(TAG, String.format("syncTargetSync: %d", x));
+        Const.gameBoard.getCell(x).buffersync();
+    }
+
+    public void syncbuffer() {
+        this.buffer = this.data;
+    }
+
+    public void buffersync() {
+        Log.i(TAG, String.format("buffersync: %s", this.toString()));
+        this.display = this.buffer;
     }
 }

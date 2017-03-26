@@ -152,6 +152,7 @@ public class GameBoard {
                 if (a.getData() == b.getData()) {               //它俩相等，并且都不等于0  (等于零已经被排除)      此时j - i 即为 b所带表的元素需要行进的格数
                     b.setFirststep(j - i);
                     a.increaseData();
+                    a.syncbuffer();
                     b.clearData();
                     b.setStatic(false);
                     pushintoFirstDrawList(b);
@@ -177,11 +178,9 @@ public class GameBoard {
                     cells.get(position).setData(cell.getData());            //将当前这个点的实际数据，平移到这条线的最左边去
                     cell.clearData();                   //再将自己的实际的数据进行清空
                 }
-                if (cell.gettimes() != 0) {
-                    Log.i(TAG, String.format("move: %s has been pushed into the list offsets ", cell.toString()));
-                    cell.setStatic(false);
-                    pushintoLastDrawList(cell);
-                }
+                Log.i(TAG, String.format("move: %s has been pushed into the list offsets ", cell.toString()));
+                cell.setStatic(false);
+                pushintoLastDrawList(cell);
                 position++;                         //指向位移地址的下标会进行自动加一
             }
         }           //再完成对归并数据表后的位移
@@ -327,7 +326,7 @@ public class GameBoard {
 //        }//此时的细胞为内圈细胞
     }
 
-    public void debugsyncAll() {
+    public void syncAll() {
         for (int i = 0; i < size(); i++) {
             getCell(i).clearExceptData();
             getCell(i).syncDisplayandClearOther();

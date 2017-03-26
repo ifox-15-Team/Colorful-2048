@@ -97,7 +97,7 @@ public class GameTouchListener {
             if (flag) {
                 CreateActionThread();
 //                gameBoard.debug();
-//                gameBoard.debugsyncAll();
+//                gameBoard.syncAll();
             }
         }
     }

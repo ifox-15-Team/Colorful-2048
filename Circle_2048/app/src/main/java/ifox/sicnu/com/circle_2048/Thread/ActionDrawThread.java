@@ -29,7 +29,6 @@ public class ActionDrawThread extends Thread {
 //            while (Const.gameBoard.isAction()) {
             while (Const.gameBoard.isAction()) {
                 Canvas canvas = sh.lockCanvas();
-                Log.i(TAG, String.format("run1: %d", Const.gameBoard.size_alive(Cell.COMBINE)));
                 for (int i = 0; i < Const.gameBoard.size_firstneedDraw(); i++) {
                     Cell cell = Const.gameBoard.getFirstNeedDraw(i);
                     if (cell.isAlive() && cell.increaseOffset(Cell.COMBINE)) {
@@ -37,18 +36,18 @@ public class ActionDrawThread extends Thread {
 //                        Const.gameBoard.removefromFirstDrawList(cell);
                         cell.die();
                         cell.clearDisplay();
+                        cell.syncTargetSync();
+//                        cell.syncTargetAction(Cell.COMBINE);                        //该cell 要到达的cell 设置为ACTION，从而让其播放动画，但是设置为ACTION时，需要检查，它有没有第二位移矢量，如果有，才设置为ACTION
                     }
                 }
-                Log.i(TAG, String.format("run2: %d", Const.gameBoard.size_alive(Cell.MOVE)));
                 if (Const.gameBoard.size_alive(Cell.COMBINE) == 0) {               //只有当第一种动画执行完毕，才会执行第二种动画
                     for (int i = 0; i < Const.gameBoard.size_lastneedDraw(); i++) {
                         Cell cell = Const.gameBoard.getLastNeedDraw(i);
-                        Log.i(TAG, "run: " + cell.toString());
                         if (cell.isAlive() && cell.increaseOffset(Cell.MOVE)) {
 //                            cell.clearExceptData();
 //                            Const.gameBoard.removefromFirstDrawList(cell);
                             cell.die();
-                            cell.syncTargetDisplay();
+                            cell.syncTargetAction(Cell.MOVE);
                         }
                     }
                 }
@@ -83,7 +82,7 @@ public class ActionDrawThread extends Thread {
                 e.printStackTrace();
             }
             flag = false;
-            Const.gameBoard.debugsyncAll();
+            Const.gameBoard.syncAll();
             Const.gameBoard.bordtypeincrease();                       //每次处理完逻辑后，都会进行bordertype 的更改
             if (!Const.gameBoard.createNewCell()) {
                 Toast.makeText(Const.context, "游戏结束", Toast.LENGTH_SHORT).show();

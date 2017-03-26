@@ -222,7 +222,7 @@ public class GameDrawer {
         if (cell.getMovetype() == GameBoard.ROTATE_POSITIVE) {
             point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
         } else if (cell.getMovetype() == GameBoard.ROTATE_NEGETIVE) {
-            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset + cell.getOffset(), scaleoffset);
+            point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset - cell.getOffset(), scaleoffset);
         } else if (cell.getMovetype() == GameBoard.POP) {
             point = Const.Tool.getPoint(ofx + width / 2, ofy + height / 2, cell.getId(), scrolloffset, scaleoffset + cell.getOffset());
         } else {
